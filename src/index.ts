@@ -30,7 +30,9 @@ const server = http.createServer(app);
 server.listen(8080, () => {
   console.log(`server running on 8080`);
 });
-
+app.get("/", (req, res) => {
+  res.send("Welcome to Jersfolio API");
+});
 const MONGO_URL = process.env.MONGO_URI;
 
 mongoose.Promise = Promise;

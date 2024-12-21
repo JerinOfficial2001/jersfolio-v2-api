@@ -36,11 +36,14 @@ export const login = async (req: any, res: any) => {
       await user.save();
 
       res.cookie("JERSFOLIO-V2-AUTH", user.authentication.access_token, {
-        domain: "localhost",
+        domain:
+          process.env.NODE_ENV === "production"
+            ? "jers-folio-pro.vercel.app"
+            : "localhost",
         path: "/",
         httpOnly: false,
         sameSite: "Lax",
-        secure: false,
+        secure: process.env.NODE_ENV === "production",
       });
 
       return res.status(200).json({ message: "Login successful", data: user });
@@ -69,8 +72,14 @@ export const login = async (req: any, res: any) => {
     );
     await user.save();
     res.cookie("JERSFOLIO-V2-AUTH", user.authentication.access_token, {
-      domain: "localhost",
+      domain:
+        process.env.NODE_ENV === "production"
+          ? "jers-folio-pro.vercel.app"
+          : "localhost",
       path: "/",
+      httpOnly: false,
+      sameSite: "Lax",
+      secure: process.env.NODE_ENV === "production",
     });
     return res.status(200).json({ message: "Login successful", data: user });
   } catch (error) {
@@ -126,11 +135,14 @@ export const register = async (req: any, res: any) => {
 
 export const logout = (req: any, res: any) => {
   res.clearCookie("JERSFOLIO-V2-AUTH", {
-    domain: "localhost",
+    domain:
+      process.env.NODE_ENV === "production"
+        ? "jers-folio-pro.vercel.app"
+        : "localhost",
     path: "/",
     httpOnly: false,
     sameSite: "Lax",
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
   });
   return res.status(200).json({ message: "Logout successful" });
 };
