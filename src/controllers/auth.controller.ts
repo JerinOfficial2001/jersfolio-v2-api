@@ -95,7 +95,7 @@ export const login = async (req: any, res: any) => {
       path: "/",
       httpOnly: false,
       sameSite: "Lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: false,
     });
     return res.status(200).json({ message: "Login successful", data: user });
   } catch (error) {
