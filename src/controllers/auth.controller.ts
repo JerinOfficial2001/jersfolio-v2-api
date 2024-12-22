@@ -1,5 +1,9 @@
-import { Request, Response } from "express";
-import { authentication, random, generateUsername } from "../helpers";
+import {
+  authentication,
+  random,
+  generateUsername,
+  generateJWT,
+} from "../helpers";
 import { verifyGoogleToken } from "../services/googleAuth";
 import { createUser, getUserByEmail } from "../services/user";
 
@@ -31,29 +35,10 @@ export const login = async (req: any, res: any) => {
         });
       }
 
-      if (!user.authentication) {
-        user.authentication = {};
-      }
-
-      const salt = random();
-      user.authentication.access_token = authentication(
-        salt,
-        user._id.toString()
-      );
-      await user.save();
-
-      res.cookie("JERSFOLIO-V2-AUTH", user.authentication.access_token, {
-        domain:
-          process.env.NODE_ENV === "production"
-            ? "jers-folio-pro.vercel.app"
-            : "localhost",
-        path: "/",
-        httpOnly: false,
-        sameSite: "Lax",
-        secure: process.env.NODE_ENV === "production",
-      });
-
-      return res.status(200).json({ message: "Login successful", data: user });
+      const { token, expiresAt } = generateJWT(user);
+      return res
+        .status(200)
+        .json({ message: "Login successful", token, expiresAt });
     }
 
     const missingFields = [];
@@ -81,23 +66,11 @@ export const login = async (req: any, res: any) => {
         .status(401)
         .json({ error: "Incorrect password", field: "password" });
     }
-    const salt = random();
-    user.authentication.access_token = authentication(
-      salt,
-      user._id.toString()
-    );
-    await user.save();
-    res.cookie("JERSFOLIO-V2-AUTH", user.authentication.access_token, {
-      domain:
-        process.env.NODE_ENV === "production"
-          ? "jers-folio-pro.vercel.app"
-          : "localhost",
-      path: "/",
-      httpOnly: false,
-      sameSite: "Lax",
-      secure: false,
-    });
-    return res.status(200).json({ message: "Login successful", data: user });
+
+    const { token, expiresAt } = generateJWT(user);
+    return res
+      .status(200)
+      .json({ message: "Login successful", token, expiresAt });
   } catch (error) {
     console.error("Error in login:", error);
     return res.status(500).json({ error: "Internal server error" });
@@ -155,15 +128,6 @@ export const register = async (req: any, res: any) => {
 };
 
 export const logout = (req: any, res: any) => {
-  res.clearCookie("JERSFOLIO-V2-AUTH", {
-    domain:
-      process.env.NODE_ENV === "production"
-        ? "jers-folio-pro.vercel.app"
-        : "localhost",
-    path: "/",
-    httpOnly: false,
-    sameSite: "Lax",
-    secure: process.env.NODE_ENV === "production",
-  });
+  // No need to clear cookies as JWT is stateless
   return res.status(200).json({ message: "Logout successful" });
 };
