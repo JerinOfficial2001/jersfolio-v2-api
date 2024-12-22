@@ -1,20 +1,18 @@
 import crypto from "crypto";
 import { getUserByUsername } from "../services/user";
 import jwt from "jsonwebtoken";
+import { configDotenv } from "dotenv";
 
-const SECRET = "JERSFOLIO_V2.0@JERIN_25_01";
+configDotenv();
+const SECRET = process.env.SECRET;
 
 export const random = () => crypto.randomBytes(128).toString("base64");
 
 export const generateJWT = (user: any) => {
   const expiresIn = "24h";
-  const token = jwt.sign(
-    { id: user._id, email: user.email },
-    process.env.JWT_SECRET,
-    {
-      expiresIn,
-    }
-  );
+  const token = jwt.sign({ id: user._id, email: user.email }, SECRET, {
+    expiresIn,
+  });
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   return { token, expiresAt };
 };
