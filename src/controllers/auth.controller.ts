@@ -5,7 +5,14 @@ import {
   generateJWT,
 } from "../helpers";
 import { verifyGoogleToken } from "../services/googleAuth";
-import { createUser, getUserByEmail } from "../services/user";
+import {
+  createUser,
+  getUserByEmail,
+  getUserById,
+  updateImageByUserId,
+} from "../services/user";
+import { profile } from "../constants";
+import { deleteImage } from "../services/cloudinaryService";
 
 export const login = async (req: any, res: any) => {
   try {
@@ -80,7 +87,6 @@ export const login = async (req: any, res: any) => {
 export const register = async (req: any, res: any) => {
   try {
     const { email, password, username, name } = req.body;
-
     const missingFields = [];
     if (!email) missingFields.push("email");
     if (!username) missingFields.push("username");
@@ -88,20 +94,22 @@ export const register = async (req: any, res: any) => {
     if (!name) missingFields.push("name");
 
     if (missingFields.length > 0) {
+      if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
       return res.status(400).json({
         error: "Missing required fields: " + missingFields.join(", "),
         fields: missingFields,
       });
     }
-
     const generatedUsername = await generateUsername(email, username, false);
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
+      if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
       return res
         .status(409)
         .json({ error: "User already exists", field: "email" });
     }
     if (!generatedUsername) {
+      if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
       return res
         .status(409)
         .json({ error: username + " already exists", field: "username" });
@@ -117,13 +125,63 @@ export const register = async (req: any, res: any) => {
       authType: "jersfolio-auth",
       name,
     });
+    uploadImage(
+      { ...req, params: { user_id: user._id }, isNotAllowed: true },
+      res
+    );
     return login(
       { ...req, body: { email: user.email, password: password } },
       res
     );
   } catch (error) {
+    if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
     console.error("Error in register:", error);
     return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const uploadImage = async (req: any, res: any) => {
+  try {
+    const user_id = req.params.user_id;
+    if (!user_id) {
+      return res.status(400).json({
+        error: "User Id is required",
+      });
+    }
+    const user = await getUserById(user_id);
+    if (user && user.image) {
+      const { result } = await deleteImage({ id: user.image.public_id }, res);
+
+      if (result != "ok") {
+        return res.status(400).json({
+          error: "Image Deletion failed",
+        });
+      }
+
+      await updateImageByUserId(user_id, {
+        public_id: req.file.filename,
+        url: req.file.path,
+      });
+    } else {
+      if (!req.file && !req.isNotAllowed) {
+        return res.status(400).json({
+          error: "Image is required",
+        });
+      }
+      if (req.file) {
+        await updateImageByUserId(user_id, {
+          public_id: req.file.filename,
+          url: req.file.path,
+        });
+      }
+    }
+    if (!req.isNotAllowed) {
+      return res.status(200).json({ message: "Image Uploaded" });
+    }
+  } catch (error) {
+    console.error("Error in Auth Image Upload:", error);
+    if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
+    // return res.status(500).json({ error: "Internal server error" });
   }
 };
 

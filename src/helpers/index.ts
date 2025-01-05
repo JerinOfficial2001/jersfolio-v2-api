@@ -17,6 +17,16 @@ export const generateJWT = (user: any) => {
   return { token, expiresAt };
 };
 
+export const verifyJWT = (token: any) => {
+  const result: any = jwt.verify(token, SECRET);
+
+  if (result && result.id) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 export const authentication = (salt: string, password: string) => {
   return crypto
     .createHmac("sha256", [salt, password].join("/"))

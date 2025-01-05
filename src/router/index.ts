@@ -1,11 +1,13 @@
 import express from "express";
 import authRoute from "./auth.route";
-import userRouter from "./user.router";
+import userRoute from "./user.route";
+import portfolioRoute from "./portfolio.route";
 
 const router = express.Router();
 
 export default (): express.Router => {
   authRoute(router);
-  userRouter(router);
+  userRoute(router);
+  portfolioRoute(router);
   return router;
 };

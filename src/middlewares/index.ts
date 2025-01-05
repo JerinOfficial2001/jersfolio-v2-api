@@ -1,5 +1,5 @@
 import { get, identity, merge } from "lodash";
-import { getUserByAccessToken } from "../services/user";
+import { verifyJWT } from "../helpers";
 
 export const isOwner = async (req: any, res: any, next: any) => {
   try {
@@ -27,23 +27,20 @@ export const isOwner = async (req: any, res: any, next: any) => {
 
 export const isAuthenticated = async (req: any, res: any, next: any) => {
   try {
-    const accessToken = req.cookies["JERSFOLIO-V2-AUTH"];
+    const accessToken = req.headers.authorization?.replace("Bearer ", "");
     if (!accessToken) {
       return res
         .status(401)
-        .json({ message: "Unauthorized: No access token provided" });
+        .json({ error: "Unauthorized: No access token provided" });
     }
 
-    const existingUser = await getUserByAccessToken(accessToken);
+    const existingUser = verifyJWT(accessToken);
     if (!existingUser) {
-      return res.status(404).json({ message: "User does not exist" });
+      return res.status(404).json({ error: "User does not exist" });
     }
-
-    merge(req, { identity: existingUser });
-
     return next();
   } catch (error) {
     console.error("Authentication error:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
