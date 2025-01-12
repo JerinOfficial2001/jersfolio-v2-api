@@ -94,7 +94,7 @@ export const register = async (req: any, res: any) => {
     if (!name) missingFields.push("name");
 
     if (missingFields.length > 0) {
-      if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
+      if (req.file) await deleteImage({ id: req.file.filename }, res);
       return res.status(400).json({
         error: "Missing required fields: " + missingFields.join(", "),
         fields: missingFields,
@@ -103,13 +103,13 @@ export const register = async (req: any, res: any) => {
     const generatedUsername = await generateUsername(email, username, false);
     const existingUser = await getUserByEmail(email);
     if (existingUser) {
-      if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
+      if (req.file) await deleteImage({ id: req.file.filename }, res);
       return res
         .status(409)
         .json({ error: "User already exists", field: "email" });
     }
     if (!generatedUsername) {
-      if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
+      if (req.file) await deleteImage({ id: req.file.filename }, res);
       return res
         .status(409)
         .json({ error: username + " already exists", field: "username" });
@@ -134,7 +134,7 @@ export const register = async (req: any, res: any) => {
       res
     );
   } catch (error) {
-    if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
+    if (req.file) await deleteImage({ id: req.file.filename }, res);
     console.error("Error in register:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
@@ -180,7 +180,7 @@ export const uploadImage = async (req: any, res: any) => {
     }
   } catch (error) {
     console.error("Error in Auth Image Upload:", error);
-    if (req.file.filename) await deleteImage({ id: req.file.filename }, res);
+    if (req.file) await deleteImage({ id: req.file.filename }, res);
     // return res.status(500).json({ error: "Internal server error" });
   }
 };

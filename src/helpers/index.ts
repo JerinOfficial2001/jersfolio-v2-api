@@ -26,6 +26,15 @@ export const verifyJWT = (token: any) => {
     return false;
   }
 };
+export const getUserIdByToken = (token: any) => {
+  const result: any = jwt.verify(token, SECRET);
+
+  if (result && result.id) {
+    return result.id;
+  } else {
+    return null;
+  }
+};
 
 export const authentication = (salt: string, password: string) => {
   return crypto

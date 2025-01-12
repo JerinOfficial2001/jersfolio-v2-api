@@ -1,8 +1,9 @@
 import { UserModel } from "../model/users.model";
-import { generateUsername } from "../helpers";
+import { generateUsername, getUserIdByToken } from "../helpers";
 import {
   deleteAllUsers,
   getUserByEmail,
+  getUserById,
   getUsers,
   updateUserById,
 } from "../services/user";
@@ -16,6 +17,18 @@ export const getAllUser = async (req: any, res: any) => {
     return res.status(200).json({ data: users });
   } catch (error) {
     console.error("Error fetching users:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const getUser = async (req: any, res: any) => {
+  try {
+    const accessToken = req.headers.authorization?.replace("Bearer ", "");
+    const userID = await getUserIdByToken(accessToken);
+    if (!userID) return res.status(401).json({ error: "Unauthorized" });
+    const user = await getUserById(userID);
+    return res.status(200).json({ data: user });
+  } catch (error) {
+    console.error("Error fetching user:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -97,14 +110,13 @@ export const updateUser = async (req: any, res: any) => {
         });
       }
       if (image) {
-        image.forEach(async (file: any) => {
-          uploadImage(
-            { ...req, file: file, params: { user_id: id }, isNotAllowed: true },
-            res
-          );
-        });
+        uploadImage(
+          { ...req, file: image, params: { user_id: id }, isNotAllowed: true },
+          res
+        );
       }
     }
+    console.log(links, "Links");
 
     if (User) {
       User.email = email;
