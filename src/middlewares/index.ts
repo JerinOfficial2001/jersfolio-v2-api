@@ -41,6 +41,6 @@ export const isAuthenticated = async (req: any, res: any, next: any) => {
     return next();
   } catch (error) {
     console.error("Authentication error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Token expired" });
   }
 };

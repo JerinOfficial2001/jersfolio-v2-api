@@ -41,7 +41,7 @@ export const updateresumeByUserId = async (
 ) => {
   const User: any = await UserModel.findById(id);
   if (User) {
-    User.resume = values;
+    User.resumes = values;
     await User.save();
   }
 };

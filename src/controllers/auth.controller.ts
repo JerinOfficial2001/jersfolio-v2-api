@@ -149,7 +149,7 @@ export const uploadImage = async (req: any, res: any) => {
       });
     }
     const user = await getUserById(user_id);
-    if (user && user.image) {
+    if (user && user?.image && user?.image?.public_id) {
       const { result } = await deleteImage({ id: user.image.public_id }, res);
 
       if (result != "ok") {
@@ -180,7 +180,8 @@ export const uploadImage = async (req: any, res: any) => {
     }
   } catch (error) {
     console.error("Error in Auth Image Upload:", error);
-    if (req.file) await deleteImage({ id: req.file.filename }, res);
+    if (req.file && req.file.filename)
+      await deleteImage({ id: req.file.filename }, res);
     // return res.status(500).json({ error: "Internal server error" });
   }
 };

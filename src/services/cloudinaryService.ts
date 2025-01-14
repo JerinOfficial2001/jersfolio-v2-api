@@ -17,7 +17,11 @@ export const uploadImage = (req: any, res: any) => {
 
 export const deleteImage = async (req: any, res: any) => {
   try {
-    const result = await cloudinary.uploader.destroy(req.id);
+    const resource_type = req.resource_type
+      ? { resource_type: req.resource_type }
+      : {};
+    const result = await cloudinary.uploader.destroy(req.id, resource_type);
+
     return result;
   } catch (error) {
     console.log("Image Deletion:", error);
@@ -41,11 +45,12 @@ export const uploadPdf = async (req: any, res: any) => {
     }
     if (req.file) {
       await updateresumeByUserId(user_id, [
-        ...user?.resume,
+        ...user?.resumes,
         {
           public_id: req.file.filename,
           url: req.file.path,
           isPrimary: false,
+          name: req.file.originalname,
         },
       ]);
     }

@@ -68,9 +68,9 @@ export const updateUser = async (req: any, res: any) => {
       gender,
       role,
       about,
-      image_id,
+      image,
       links,
-      resume,
+      resumeIds,
     } = req.body;
     const missingFields = [];
     if (!email) missingFields.push("email");
@@ -111,12 +111,16 @@ export const updateUser = async (req: any, res: any) => {
       }
       if (image) {
         uploadImage(
-          { ...req, file: image, params: { user_id: id }, isNotAllowed: true },
+          {
+            ...req,
+            file: image[0],
+            params: { user_id: id },
+            isNotAllowed: true,
+          },
           res
         );
       }
     }
-    console.log(links, "Links");
 
     if (User) {
       User.email = email;
@@ -126,8 +130,27 @@ export const updateUser = async (req: any, res: any) => {
       User.gender = gender;
       User.role = role;
       User.links = links;
-      User.resume = resume;
-      User.image_id = image_id;
+
+      if (resumeIds) {
+        for (let resume of resumeIds) {
+          await deleteImage({ id: resume, resource_type: "raw" }, res);
+        }
+        User.resumes = User.resumes.filter(
+          (resume: any) => !resumeIds.includes(resume.public_id)
+        );
+      }
+      if (
+        User.image &&
+        typeof User.image == "object" &&
+        typeof image != "object" &&
+        User?.image?.public_id
+      ) {
+        await deleteImage({ id: User?.image?.public_id }, res);
+      }
+      if (!req?.files?.image && image) {
+        User.image = image;
+      }
+
       await User.save();
     }
 

@@ -18,6 +18,7 @@ const storage = (folder: any) =>
     params: (req: any, file: any) => {
       let resourceType = "image";
       const fileExtension = file.mimetype.split("/")[0];
+
       if (fileExtension === "application") {
         resourceType = "raw";
       }
@@ -28,7 +29,7 @@ const storage = (folder: any) =>
             "JersfolioV2/" +
             (fileExtension === "application" ? "resumes" : folder),
           allowed_formats: ["jpeg", "jpg", "png", "pdf"],
-          resourceType: resourceType,
+          resource_type: resourceType,
         };
       } catch (error) {
         console.error("Error in upload:", error);

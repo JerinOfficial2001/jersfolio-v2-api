@@ -13,7 +13,7 @@ export const getPortfolio = async (req: any, res: any) => {
       role: User.role,
       about: User.about,
       links: User.links,
-      resume: User.resume.find((r: any) => r?.isPrimary === true)?.url,
+      resume: User.resumes.find((r: any) => r?.isPrimary === true)?.url,
       image: User.image?.url,
     };
     return res.status(200).json({ status: "ok", data: portFolio });
