@@ -1,5 +1,9 @@
 import { UserModel } from "../model/users.model";
-import { generateUsername, getUserIdByToken } from "../helpers";
+import {
+  deleteMultipleDocs,
+  generateUsername,
+  getUserIdByToken,
+} from "../helpers";
 import {
   deleteAllUsers,
   getUserByEmail,
@@ -50,14 +54,10 @@ export const updateUser = async (req: any, res: any) => {
     if (!User) {
       const { pdf, image } = req.files;
       if (pdf) {
-        pdf.forEach(async (file: any) => {
-          if (file.filename) await deleteImage({ id: file.filename }, res);
-        });
+        deleteMultipleDocs(pdf, res);
       }
       if (image) {
-        image.forEach(async (file: any) => {
-          if (file.filename) await deleteImage({ id: file.filename }, res);
-        });
+        deleteMultipleDocs(image, res);
       }
       return res.status(404).json({ error: "User not found" });
     }
@@ -147,7 +147,7 @@ export const updateUser = async (req: any, res: any) => {
       ) {
         await deleteImage({ id: User?.image?.public_id }, res);
       }
-      if (!req?.files?.image && image) {
+      if (!req?.files?.image && typeof image == "string" && image?.length < 3) {
         User.image = image;
       }
 
@@ -159,14 +159,10 @@ export const updateUser = async (req: any, res: any) => {
     if (req.files) {
       const { pdf, image } = req.files;
       if (pdf) {
-        pdf.forEach(async (file: any) => {
-          if (file.filename) await deleteImage({ id: file.filename }, res);
-        });
+        deleteMultipleDocs(pdf, res);
       }
       if (image) {
-        image.forEach(async (file: any) => {
-          if (file.filename) await deleteImage({ id: file.filename }, res);
-        });
+        deleteMultipleDocs(image, res);
       }
     }
 

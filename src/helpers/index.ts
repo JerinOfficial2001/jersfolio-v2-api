@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { getUserByUsername } from "../services/user";
 import jwt from "jsonwebtoken";
 import { configDotenv } from "dotenv";
+import { deleteImage } from "../services/cloudinaryService";
 
 configDotenv();
 const SECRET = process.env.SECRET;
@@ -63,4 +64,10 @@ export const generateUsername = async (
   }
 
   return username;
+};
+
+export const deleteMultipleDocs = (doc: any, res: any) => {
+  doc.forEach(async (file: any) => {
+    if (file.filename) await deleteImage({ id: file.filename }, res);
+  });
 };
