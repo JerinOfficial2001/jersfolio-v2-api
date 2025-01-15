@@ -71,3 +71,8 @@ export const deleteMultipleDocs = (doc: any, res: any) => {
     if (file.filename) await deleteImage({ id: file.filename }, res);
   });
 };
+
+export function validateWordCount(text: string, minWords = 80) {
+  const wordCount = text.trim().split(/\s+/).length; // Split text by whitespace and count
+  return wordCount >= minWords;
+}

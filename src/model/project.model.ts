@@ -10,6 +10,7 @@ const ProjectSchema = new mongoose.Schema(
     link: { type: mongoose.Schema.Types.Mixed },
     icon: { type: Object },
     projectType: { type: String },
+    isVisible: { type: Boolean },
   },
   {
     timestamps: true,
