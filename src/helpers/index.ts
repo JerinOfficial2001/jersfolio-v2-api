@@ -22,7 +22,7 @@ export const verifyJWT = (token: any) => {
   const result: any = jwt.verify(token, SECRET);
 
   if (result && result.id) {
-    return true;
+    return result;
   } else {
     return false;
   }

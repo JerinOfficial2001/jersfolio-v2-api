@@ -38,6 +38,7 @@ export const isAuthenticated = async (req: any, res: any, next: any) => {
     if (!existingUser) {
       return res.status(404).json({ error: "User does not exist" });
     }
+    req.user = existingUser;
     return next();
   } catch (error) {
     console.error("Authentication error:", error);
