@@ -44,7 +44,10 @@ const MONGO_URL = process.env.MONGO_URI;
 mongoose.Promise = Promise;
 mongoose
   .connect(MONGO_URL)
-  .then(() => console.log("MongoDB connected successfully"))
+  .then(() => {
+    mongoose.set("strictPopulate", false);
+    console.log("MongoDB connected successfully");
+  })
   .catch((error: Error) => {
     console.error("MongoDB connection error:", error);
   });

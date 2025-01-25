@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const SkillSchema = new mongoose.Schema(
   {
     key: { type: String, required: true },
+    label: { type: String, required: true },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

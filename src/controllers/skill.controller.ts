@@ -28,9 +28,10 @@ export const deleteSkills = async (req: any, res: any) => {
 };
 export const addSkill = async (req: any, res: any) => {
   try {
-    const { key } = req.body;
+    const { key, label } = req.body;
     const missingFields = [];
-    if (!key) missingFields.push("key");
+    if (!key && key < 0) missingFields.push("key");
+    if (!label) missingFields.push("label");
 
     if (missingFields.length > 0) {
       return res.status(400).json({
@@ -45,6 +46,7 @@ export const addSkill = async (req: any, res: any) => {
     }
     const result = await createSkill({
       key,
+      label,
       user_id: req.user.id,
     });
     if (!result) {

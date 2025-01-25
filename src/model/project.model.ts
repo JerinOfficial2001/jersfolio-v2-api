@@ -11,6 +11,11 @@ const ProjectSchema = new mongoose.Schema(
     icon: { type: Object },
     projectType: { type: String },
     isVisible: { type: Boolean },
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   {
     timestamps: true,

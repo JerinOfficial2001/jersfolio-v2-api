@@ -40,6 +40,12 @@ export const addProjects = async (req: any, res: any) => {
       link,
     } = req.body;
     const missingFields = [];
+    if (!req.user) {
+      deleteReqImages(req, res);
+      return res.status(400).json({
+        error: "User config failed",
+      });
+    }
     if (!title) missingFields.push("title");
     if (!about) missingFields.push("about");
     if (!description) missingFields.push("description");
@@ -67,6 +73,7 @@ export const addProjects = async (req: any, res: any) => {
       projectType,
       link,
       isVisible,
+      user_id: req.user.id,
     });
     if (!result) {
       deleteReqImages(req, res);
@@ -119,11 +126,16 @@ export const addProjects = async (req: any, res: any) => {
 };
 export const getProjectsByProjectType = async (req: any, res: any) => {
   try {
+    if (!req.user) {
+      return res.status(400).json({
+        error: "User config failed",
+      });
+    }
     const type = req.params.type;
     if (!type) {
       return res.status(401).json({ error: "Type required" });
     }
-    const projects = await getProjectsByType(type);
+    const projects = await getProjectsByType(type, req.user.id);
     res.status(200).json(projects);
   } catch (error) {
     console.log("Get projects By Type failed", error);
@@ -160,6 +172,12 @@ export const updateProject = async (req: any, res: any) => {
       deleteReqImages(req, res);
       return res.status(401).json({ error: "Id is required" });
     }
+    if (!req.user) {
+      deleteReqImages(req, res);
+      return res.status(400).json({
+        error: "User config failed",
+      });
+    }
     const missingFields = [];
     if (!title) missingFields.push("title");
     if (!about) missingFields.push("about");
@@ -172,11 +190,11 @@ export const updateProject = async (req: any, res: any) => {
         fields: missingFields,
       });
     }
-    if (validateWordCount(about)) {
+    if (!validateWordCount(about)) {
       deleteReqImages(req, res);
       return res
         .status(401)
-        .json({ error: "Must have atleast 80 words", field: "about" });
+        .json({ error: "Must have atleast 70 words", field: "about" });
     }
     const project = await ProjectModel.findById(id);
     if (!project) {
@@ -238,6 +256,8 @@ export const updateProject = async (req: any, res: any) => {
     project.primaryImage = primaryImage;
     project.projectType = projectType;
     project.link = link;
+    project.user_id = req.user.id;
+
     await project.save();
     res.status(200).json({ message: "Project updated successfully" });
   } catch (error) {
