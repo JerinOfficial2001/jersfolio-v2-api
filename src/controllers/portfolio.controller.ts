@@ -4,6 +4,7 @@ import {
   deleteAllPortFolios,
   getAllPortfolios,
   getPortFolioByUserId,
+  getPublishedUsers,
 } from "../services/portfolio.service";
 import {
   getUserById,
@@ -36,18 +37,20 @@ export const deleteAllPortfolios = async (req: any, res: any) => {
 };
 export const getActivePortfolios = async (req: any, res: any) => {
   try {
-    const allFolios = await getAllPortfolios();
+    const allFolios = await getPublishedUsers();
+
     return res.status(200).json(
-      allFolios
-        .filter((elem) => elem.isPrimary == true)
-        .map((elem: any) => ({
+      await allFolios.map((elem: any) => {
+        return {
           name: elem.name,
           email: elem.email,
           username: elem.username,
           id: elem._id,
           image: elem.image,
           gender: elem.gender,
-        }))
+          role: elem.role,
+        };
+      })
     );
   } catch (error) {
     console.error("Error Getting PortFolios:", error);
@@ -121,7 +124,17 @@ export const getPortfolio = async (req: any, res: any) => {
       .populate("skills")
       .populate("contact")
       .exec();
-    return res.status(200).json(portfolio);
+    return res.status(200).json({
+      ...portfolio.toObject(),
+      works: {
+        websites: portfolio.works.filter(
+          (elem: any) => elem?.projectType == "website"
+        ),
+        applications: portfolio.works.filter(
+          (elem: any) => elem?.projectType == "application"
+        ),
+      },
+    });
   } catch (error) {
     console.error("Error Getting PortFolio:", error);
     return res.status(500).json({ error: "Internal server error" });

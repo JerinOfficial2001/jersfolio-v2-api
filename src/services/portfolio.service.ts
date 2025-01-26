@@ -1,3 +1,4 @@
+import { UserModel } from "../model/users.model";
 import { PorfolioModel } from "../model/porfolio.model";
 
 export const getAllPortfolios = () => PorfolioModel.find();
@@ -19,3 +20,5 @@ export const deleteAllPortFolios = () => PorfolioModel.deleteMany();
 
 export const updatePortFolioById = (id: string, values: Record<string, any>) =>
   PorfolioModel.findByIdAndUpdate(id, values);
+
+export const getPublishedUsers = () => UserModel.find({ isPublished: true });
