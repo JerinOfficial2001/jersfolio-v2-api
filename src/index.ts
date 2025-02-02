@@ -6,8 +6,8 @@ import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-
 import router from "./router";
+import { sequelize } from "./configs/sql";
 
 dotenv.config();
 
@@ -33,8 +33,13 @@ app.use((req, res, next) => {
 
 const server = http.createServer(app);
 
-server.listen(8080, () => {
-  console.log(`server running on 8080`);
+server.listen(8080, async () => {
+  try {
+    // await sequelize.sync();
+    console.log(`Server running on port 8080`);
+  } catch (error) {
+    console.error("Database connection failed:", error);
+  }
 });
 app.get("/", (req, res) => {
   res.send("Welcome to Jersfolio API");
