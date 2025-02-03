@@ -24,7 +24,7 @@ export default (router: express.Router) => {
 
   router.get("/projects", isAuthenticated, getProjects);
   router.get("/projects/:type", isAuthenticated, getProjectsByProjectType);
-  router.get("/project/:id", isAuthenticated, getProjectByProjectId);
+  router.get("/project/:id", getProjectByProjectId);
   router.delete("/project", isAuthenticated, deleteProjects);
   router.post("/project", isAuthenticated, uploadFieldsOptions, addProjects);
   router.put(
