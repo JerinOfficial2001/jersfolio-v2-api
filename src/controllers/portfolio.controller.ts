@@ -157,7 +157,7 @@ export const publishPortfolio = async (req: any, res: any) => {
         error: "Portfolio already exists",
       });
     }
-    const porfolios = await PorfolioModel.find({ isPrimary: true });
+    const porfolios = await PorfolioModel.find({ isPrimary: true, user: id });
     if (porfolios.length > 0) {
       porfolios.forEach(async (elem: any) => {
         const portFolio = await PorfolioModel.findById(elem._id);

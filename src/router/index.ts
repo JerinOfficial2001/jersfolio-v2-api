@@ -7,6 +7,7 @@ import educationRoute from "./education.route";
 import experienceRoute from "./experience.route";
 import skillRoute from "./skill.route";
 import contactRoute from "./contact.route";
+import enquiryRoute from "./enquiry.route";
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ export default (): express.Router => {
   experienceRoute(router);
   skillRoute(router);
   contactRoute(router);
+  enquiryRoute(router);
   return router;
 };
