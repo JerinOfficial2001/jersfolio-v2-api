@@ -50,9 +50,7 @@ export const upload = (req: any, res: any, next: any, options?: any) => {
   }
   uploadMiddleware(req, res, (err: any) => {
     if (err) {
-      return res
-        .status(500)
-        .json({ error: "upload image err : " + err.message });
+      return res.status(500).json({ error: "upload image err : " + err });
     }
     next();
   });

@@ -67,7 +67,9 @@ export const getPortfoliosWithUserID = async (req: any, res: any) => {
     }
     const newFolio = await isPortfolioAlreadyExist(req, res);
     const allFolios = await getPortFolioByUserId(req.user.id);
-
+    if (newFolio.status == "error") {
+      return res.status(400).json(newFolio);
+    }
     const portFolios = {
       new: newFolio
         ? {
@@ -183,6 +185,17 @@ const isPortfolioAlreadyExist = async (req: any, res: any) => {
   const education = await getEducationsByUserId(id);
   const experience = await getExperiencesByUserId(id);
   const skills = await getSkillsByUserId(id);
+  let errors = [];
+  if (!contact) errors.push("Complete contact section");
+  if (education.length == 0) errors.push("Complete Education section");
+  if (experience.length == 0) errors.push("Complete Experience section");
+  if (!user.role) errors.push("User role is required");
+  if (errors.length > 0) {
+    return {
+      status: "error",
+      error: errors,
+    };
+  }
   const newFolio: any = {
     user: user._id,
     contact: contact._id,
@@ -198,10 +211,10 @@ const isPortfolioAlreadyExist = async (req: any, res: any) => {
   };
 
   if (!newFolio.user_id && !user) {
-    return res.status(400).json({
+    return {
       status: "error",
       error: "User not found",
-    });
+    };
   }
   const existingPortfolio = allPortFolio
     .filter((elem) => elem.isPrimary == true)
