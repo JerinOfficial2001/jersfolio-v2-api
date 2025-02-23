@@ -1,5 +1,5 @@
-import { ProjectModel } from "../model/project.model";
 import { deleteMultipleDocs, validateWordCount } from "../helpers";
+import { ProjectModel } from "../model/project.model";
 import { deleteImage, uploadImage } from "../services/cloudinaryService";
 import {
   createProject,
@@ -57,7 +57,6 @@ export const addProjects = async (req: any, res: any) => {
         fields: missingFields,
       });
     }
-    console.log(validateWordCount(about));
 
     if (!validateWordCount(about)) {
       deleteReqImages(req, res);

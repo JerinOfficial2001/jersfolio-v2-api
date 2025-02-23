@@ -1,4 +1,7 @@
-import { getProjectByUserId } from "../services/project.service";
+import { PorfolioModel } from "../model/porfolio.model";
+import { getContactByUserId } from "../services/contact.service";
+import { getEducationsByUserId } from "../services/education.service";
+import { getExperiencesByUserId } from "../services/experience.service";
 import {
   createPortFolio,
   deleteAllPortFolios,
@@ -6,16 +9,13 @@ import {
   getPortFolioByUserId,
   getPublishedUsers,
 } from "../services/portfolio.service";
+import { getProjectByUserId } from "../services/project.service";
+import { getSkillsByUserId } from "../services/skill.service";
 import {
   getUserById,
   getUserByUsername,
   publishByUserId,
 } from "../services/user";
-import { getEducationsByUserId } from "../services/education.service";
-import { getExperiencesByUserId } from "../services/experience.service";
-import { getSkillsByUserId } from "../services/skill.service";
-import { PorfolioModel } from "../model/porfolio.model";
-import { getContactByUserId } from "../services/contact.service";
 
 export const getPortfolios = async (req: any, res: any) => {
   try {
@@ -187,8 +187,9 @@ const isPortfolioAlreadyExist = async (req: any, res: any) => {
   const skills = await getSkillsByUserId(id);
   let errors = [];
   if (!contact) errors.push("Complete contact section");
-  if (education.length == 0) errors.push("Complete Education section");
-  if (experience.length == 0) errors.push("Complete Experience section");
+  if (education.length == 0) errors.push("Complete Education section in About");
+  if (experience.length == 0)
+    errors.push("Complete Experience section in About");
   if (!user.role) errors.push("User role is required");
   if (errors.length > 0) {
     return {

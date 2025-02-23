@@ -1,8 +1,8 @@
 import crypto from "crypto";
-import { getUserByUsername } from "../services/user";
-import jwt from "jsonwebtoken";
 import { configDotenv } from "dotenv";
+import jwt from "jsonwebtoken";
 import { deleteImage } from "../services/cloudinaryService";
+import { getUserByUsername } from "../services/user";
 
 configDotenv();
 const SECRET = process.env.SECRET;
@@ -74,7 +74,5 @@ export const deleteMultipleDocs = (doc: any, res: any) => {
 
 export function validateWordCount(text: string, minWords = 70) {
   const wordCount = text.trim().split(/\s+/).length; // Split text by whitespace and count
-  console.log(wordCount, "count");
-
   return wordCount >= minWords;
 }

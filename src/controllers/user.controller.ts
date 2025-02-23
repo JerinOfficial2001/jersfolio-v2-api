@@ -2,6 +2,7 @@ import {
   deleteMultipleDocs,
   generateUsername,
   getUserIdByToken,
+  validateWordCount,
 } from "../helpers";
 import { ContactModel } from "../model/contact.model";
 import { EducationModel } from "../model/education.model";
@@ -88,6 +89,11 @@ export const updateUser = async (req: any, res: any) => {
         error: "Missing required fields: " + missingFields.join(", "),
         fields: missingFields,
       });
+    }
+    if (validateWordCount(about)) {
+      return res
+        .status(401)
+        .json({ error: "Should not exceed 70 words", field: "about" });
     }
     const existingUser = await getUserByEmail(email);
     let generatedUsername = username;
