@@ -1,13 +1,14 @@
 import express from "express";
-import { uploadImage } from "../controllers/auth.controller";
 import { upload } from "../configs/cloudinary";
-import { isAuthenticated } from "../middlewares";
+import { uploadImage } from "../controllers/auth.controller";
 import {
+  deleteAccount,
   deleteAllUser,
   getAllUser,
   getUser,
   updateUser,
 } from "../controllers/user.controller";
+import { isAuthenticated } from "../middlewares";
 
 export default (router: express.Router) => {
   const uploadImageOptions = (req: any, res: any, next: any) =>
@@ -26,4 +27,5 @@ export default (router: express.Router) => {
   router.delete("/users", isAuthenticated, deleteAllUser);
   router.post("/user/upload/:user_id", uploadImageOptions, uploadImage);
   router.put("/user/:id", isAuthenticated, uploadFieldsOptions, updateUser);
+  router.delete("/user", isAuthenticated, deleteAccount);
 };

@@ -1,18 +1,24 @@
-import { UserModel } from "../model/users.model";
 import {
   deleteMultipleDocs,
   generateUsername,
   getUserIdByToken,
 } from "../helpers";
+import { ContactModel } from "../model/contact.model";
+import { EducationModel } from "../model/education.model";
+import { EnquiryModel } from "../model/enquiry.model";
+import { ExperienceModel } from "../model/experience.model";
+import { PorfolioModel } from "../model/porfolio.model";
+import { ProjectModel } from "../model/project.model";
+import { SkillModel } from "../model/skill.model";
+import { UserModel } from "../model/users.model";
+import { deleteImage, uploadPdf } from "../services/cloudinaryService";
 import {
   deleteAllUsers,
   getUserByEmail,
   getUserById,
   getUsers,
-  updateUserById,
 } from "../services/user";
 import { uploadImage } from "./auth.controller";
-import { deleteImage, uploadPdf } from "../services/cloudinaryService";
 
 export const getAllUser = async (req: any, res: any) => {
   try {
@@ -167,6 +173,60 @@ export const updateUser = async (req: any, res: any) => {
     }
 
     console.error("Error Updating user:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const deleteAccount = async (req: any, res: any) => {
+  try {
+    const accessToken = req.headers.authorization?.replace("Bearer ", "");
+    const userID = await getUserIdByToken(accessToken);
+    if (!userID) return res.status(401).json({ error: "Unauthorized" });
+
+    const user = await UserModel.findById(userID);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Delete user's image from Cloudinary if exists
+    if (user.image?.public_id) {
+      await deleteImage({ id: user.image.public_id }, res);
+    }
+
+    // Delete all resume PDFs from Cloudinary
+    if (user.resumes && user.resumes.length > 0) {
+      for (const resume of user.resumes) {
+        await deleteImage({ id: resume.public_id, resource_type: "raw" }, res);
+      }
+    }
+
+    // Get and delete all projects' images first
+    const projects = await ProjectModel.find({ user: userID });
+    for (const project of projects) {
+      const images = project.images;
+      for (let image of images) {
+        if (image?.public_id) {
+          await deleteImage({ id: image.public_id }, res);
+        }
+      }
+    }
+
+    // Delete all related data
+    await Promise.all([
+      ContactModel.deleteMany({ user_id: userID }),
+      EducationModel.deleteMany({ user_id: userID }),
+      ExperienceModel.deleteMany({ user_id: userID }),
+      EnquiryModel.deleteMany({ user_id: userID }),
+      ProjectModel.deleteMany({ user_id: userID }),
+      SkillModel.deleteMany({ user_id: userID }),
+      PorfolioModel.deleteMany({ user: userID }),
+    ]);
+
+    // Finally delete the user
+    await user.deleteOne();
+
+    return res
+      .status(200)
+      .json({ message: "Account and all related data deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting account:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
